@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Naujienų Stalas — kasdienė industrijų suvestinė</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📰</text></svg>" />
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Space+Mono:wght@400;700&display=swap');
+
+:root{
+  --paper:#f4efe2; --paper2:#ebe3d1; --card:#fbf8f0;
+  --ink:#1b1813; --ink-soft:#6a6354; --line:#d8cdb4; --line2:#c7b99a;
+  --accent:#b5320d;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:'Newsreader',Georgia,serif;
+  -webkit-font-smoothing:antialiased;
+  background-image:
+    radial-gradient(circle at 12% 18%, rgba(181,50,13,.04), transparent 40%),
+    radial-gradient(circle at 88% 82%, rgba(47,111,106,.05), transparent 42%);
+  min-height:100vh;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:0 22px 80px;}
+
+/* Antraštė */
+.masthead{padding:34px 0 18px;text-align:center;border-bottom:3px double var(--ink);}
+.kicker{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;}
+.title{font-family:'Fraunces',serif;font-weight:900;font-size:clamp(38px,7vw,76px);line-height:.92;letter-spacing:-.02em;margin:0;}
+.title em{font-style:italic;color:var(--accent);}
+.date{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin-top:16px;}
+
+/* Įrankių juosta */
+.toolbar{position:sticky;top:0;z-index:30;display:flex;gap:12px;align-items:center;flex-wrap:wrap;
+  padding:14px 0;margin-bottom:6px;background:linear-gradient(var(--paper) 70%, rgba(244,239,226,0));backdrop-filter:blur(2px);border-bottom:1px solid var(--line);}
+.search{flex:1;min-width:200px;display:flex;align-items:center;gap:9px;background:var(--card);border:1px solid var(--line2);padding:9px 13px;}
+.search input{border:0;background:transparent;outline:none;width:100%;font-family:'Newsreader',serif;font-size:15px;color:var(--ink);}
+.search input::placeholder{color:var(--ink-soft);}
+.search svg{flex:none;}
+.btn{display:inline-flex;align-items:center;gap:7px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  padding:10px 14px;background:var(--ink);color:var(--paper);border:0;cursor:pointer;transition:opacity .15s;}
+.btn:hover{opacity:.82;}
+.btn:disabled{opacity:.45;cursor:default;}
+.toggle{display:inline-flex;border:1px solid var(--line2);overflow:hidden;}
+.toggle button{display:inline-flex;align-items:center;gap:6px;padding:10px 13px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;background:transparent;border:0;cursor:pointer;color:var(--ink-soft);}
+.toggle button.on{background:var(--ink);color:var(--paper);}
+
+/* Industrijų žymos */
+.chips{display:flex;flex-wrap:wrap;gap:8px;padding:14px 0 8px;}
+.chip{display:inline-flex;align-items:center;gap:7px;padding:7px 13px;border:1px solid var(--line2);background:transparent;cursor:pointer;
+  font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);transition:all .15s;}
+.chip.on{background:var(--card);color:var(--ink);border-color:var(--ink);}
+.chip .dot{width:9px;height:9px;border-radius:50%;flex:none;opacity:.35;}
+.chip.on .dot{opacity:1;}
+.status{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--ink-soft);padding:4px 0 0;}
+
+/* Sekcijos */
+.section{margin-top:42px;}
+.sechead{display:flex;align-items:baseline;gap:14px;border-bottom:2px solid var(--ink);padding-bottom:8px;margin-bottom:20px;}
+.secbar{width:26px;height:13px;flex:none;align-self:center;}
+.sectitle{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(22px,3vw,30px);letter-spacing:-.01em;margin:0;}
+.seccount{font-family:'Space Mono',monospace;font-size:11px;color:var(--ink-soft);margin-left:auto;letter-spacing:.08em;}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);}
+
+.card{display:block;background:var(--card);padding:18px 18px 20px;text-decoration:none;color:inherit;position:relative;transition:background .15s;}
+.card:hover{background:#fffdf7;}
+.card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:0;background:var(--accent);transition:width .15s;}
+.card:hover::before{width:4px;}
+.cmeta{display:flex;align-items:center;gap:8px;margin-bottom:9px;font-family:'Space Mono',monospace;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft);}
+.csource{color:var(--ink);font-weight:700;}
+.ccat{display:inline-flex;align-items:center;gap:5px;}
+.ccat .cdot{width:7px;height:7px;border-radius:50%;}
+.ctag{margin-left:auto;}
+.ctitle{font-family:'Fraunces',serif;font-weight:600;font-size:19px;line-height:1.18;letter-spacing:-.01em;margin:0 0 8px;}
+.card:hover .ctitle{color:var(--accent);}
+.csnip{font-size:14.5px;line-height:1.45;color:var(--ink-soft);margin:0;}
+
+.skel{background:var(--card);padding:18px;}
+.skline{height:13px;background:linear-gradient(90deg,var(--paper2),#f0e9d8,var(--paper2));background-size:200% 100%;animation:sh 1.3s infinite;margin-bottom:9px;}
+@keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.spin{animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.empty{font-family:'Space Mono',monospace;font-size:12px;color:var(--ink-soft);padding:18px;background:var(--card);border:1px dashed var(--line2);letter-spacing:.04em;}
+.banner{background:#fce9e2;border:1px solid var(--accent);color:#7a2208;padding:12px 16px;font-size:14px;margin-top:18px;font-family:'Space Mono',monospace;letter-spacing:.02em;}
+.foot{margin-top:60px;border-top:3px double var(--ink);padding-top:18px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--ink-soft);text-align:center;line-height:1.8;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="masthead">
+    <div class="kicker" id="kicker"></div>
+    <h1 class="title">Naujienų <em>Stalas</em></h1>
+    <div class="date" id="date"></div>
+  </header>
+
+  <div class="toolbar">
+    <div class="search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ink-soft)" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="search" placeholder="Ieškoti naujienose…" />
+    </div>
+    <div class="toggle">
+      <button id="view-grouped" class="on">▦ Pagal industriją</button>
+      <button id="view-latest">≡ Naujausios</button>
+    </div>
+    <button class="btn" id="refresh">
+      <svg id="refresh-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9 9 0 0 1 6.7 3L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9 9 0 0 1-6.7-3L3 16"/><path d="M3 21v-5h5"/></svg>
+      <span id="refresh-label">Atnaujinti</span>
+    </button>
+  </div>
+
+  <div class="chips" id="chips"></div>
+  <div class="status" id="status"></div>
+
+  <div id="content"></div>
+
+  <footer class="foot" id="foot"></footer>
+</div>
+
+<script>
+/* ============================== KONFIGŪRACIJA ============================== */
+const CATEGORIES = [
+  { id:"tech", label:"Technologijos", color:"#2f6f6a", feeds:[
+    {name:"The Verge", url:"https://www.theverge.com/rss/index.xml"},
+    {name:"Ars Technica", url:"https://feeds.arstechnica.com/arstechnica/index"},
+    {name:"Engadget", url:"https://www.engadget.com/rss.xml"},
+  ]},
+  { id:"verslas", label:"Verslas ir finansai", color:"#1f5e8c", feeds:[
+    {name:"CNBC", url:"https://www.cnbc.com/id/100003114/device/rss/rss.html"},
+    {name:"Verslo žinios", url:"https://www.vz.lt/rss"},
+    {name:"15min", url:"https://www.15min.lt/rss"},
+  ]},
+  { id:"startuoliai", label:"Startuoliai", color:"#9a5b1f", feeds:[
+    {name:"TechCrunch", url:"https://techcrunch.com/feed/"},
+    {name:"TechCrunch Startups", url:"https://techcrunch.com/category/startups/feed/"},
+  ]},
+  { id:"sveikata", label:"Sveikata / Medicina", color:"#7a2f4f", feeds:[
+    {name:"STAT News", url:"https://www.statnews.com/feed/"},
+    {name:"ScienceDaily", url:"https://www.sciencedaily.com/rss/health_medicine.xml"},
+  ]},
+  { id:"mokslas", label:"Mokslas", color:"#3f5e2f", feeds:[
+    {name:"ScienceDaily", url:"https://www.sciencedaily.com/rss/all.xml"},
+    {name:"Phys.org", url:"https://phys.org/rss-feed/"},
+  ]},
+  { id:"marketingas", label:"Marketingas / Reklama", color:"#8c4a1f", feeds:[
+    {name:"Marketing Dive", url:"https://www.marketingdive.com/feeds/news/"},
+    {name:"Adweek", url:"https://www.adweek.com/feed/"},
+  ]},
+  { id:"kripto", label:"Kriptovaliutos", color:"#9a7a1f", feeds:[
+    {name:"CoinDesk", url:"https://www.coindesk.com/arc/outboundfeeds/rss/"},
+    {name:"Cointelegraph", url:"https://cointelegraph.com/rss"},
+  ]},
+  { id:"ai", label:"Dirbtinis intelektas", color:"#5a3f8c", feeds:[
+    {name:"VentureBeat AI", url:"https://venturebeat.com/category/ai/feed/"},
+    {name:"MIT Tech Review", url:"https://www.technologyreview.com/feed/"},
+  ]},
+];
+const PROXIES = [
+  u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+  u => `https://corsproxy.io/?url=${encodeURIComponent(u)}`,
+];
+const MAX_PER_FEED = 8;
+
+/* ============================== BŪSENA ============================== */
+let byCat = {};
+let loadingCats = {};
+let active = new Set(CATEGORIES.map(c=>c.id));
+let query = "";
+let view = "grouped";
+let lastUpdated = null;
+let anyLoaded = false;
+let runId = 0;
+
+/* ============================== PAGALBINĖS ============================== */
+const $ = id => document.getElementById(id);
+const esc = s => (s||"").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function timeAgo(ts){
+  const m = Math.floor((Date.now()-ts)/60000);
+  if(m<1) return "ką tik";
+  if(m<60) return `prieš ${m} min`;
+  const h = Math.floor(m/60);
+  if(h<24) return `prieš ${h} val`;
+  const d = Math.floor(h/24);
+  if(d<30) return `prieš ${d} d`;
+  return new Date(ts).toLocaleDateString("lt-LT");
+}
+function todayString(){
+  return new Date().toLocaleDateString("lt-LT",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+}
+
+async function fetchText(url){
+  for(const make of PROXIES){
+    try{
+      const res = await fetch(make(url), {headers:{Accept:"*/*"}});
+      if(!res.ok) continue;
+      const text = await res.text();
+      if(text && text.length>80) return text;
+    }catch(e){/* bandom kitą */}
+  }
+  return null;
+}
+function tagText(node, tag){
+  const el = node.getElementsByTagName(tag)[0];
+  return el ? el.textContent.trim() : "";
+}
+function stripHtml(html){
+  if(!html) return "";
+  const div = document.createElement("div");
+  div.innerHTML = html;
+  return (div.textContent||div.innerText||"").replace(/\s+/g," ").trim();
+}
+function parseFeed(xml, feedName){
+  const doc = new DOMParser().parseFromString(xml,"text/xml");
+  if(doc.getElementsByTagName("parsererror").length) return [];
+  let nodes = Array.from(doc.getElementsByTagName("item"));
+  if(!nodes.length) nodes = Array.from(doc.getElementsByTagName("entry"));
+  const out = [];
+  for(const node of nodes.slice(0,MAX_PER_FEED)){
+    const title = tagText(node,"title");
+    if(!title) continue;
+    let link = "";
+    const links = node.getElementsByTagName("link");
+    for(const le of links){
+      const href = le.getAttribute("href");
+      if(href){ link = href; break; }
+      if(le.textContent && le.textContent.trim()){ link = le.textContent.trim(); break; }
+    }
+    if(!link) link = tagText(node,"guid");
+    const dateStr = tagText(node,"pubDate")||tagText(node,"published")||tagText(node,"updated")||tagText(node,"date");
+    let ts = dateStr ? Date.parse(dateStr) : Date.now();
+    if(isNaN(ts)) ts = Date.now();
+    let desc = tagText(node,"description")||tagText(node,"summary")||tagText(node,"content");
+    const snippet = stripHtml(desc).slice(0,240);
+    out.push({ id: link||title, title: stripHtml(title), link, ts, snippet, source: feedName });
+  }
+  return out;
+}
+async function runPool(tasks, size, worker){
+  let i = 0;
+  const runners = Array.from({length:size}, async ()=>{
+    while(i<tasks.length){ const idx=i++; await worker(tasks[idx]); }
+  });
+  await Promise.all(runners);
+}
+
+/* ============================== KROVIMAS ============================== */
+async function loadAll(){
+  const myRun = ++runId;
+  byCat = {}; anyLoaded = false;
+  loadingCats = {}; CATEGORIES.forEach(c=>loadingCats[c.id]=true);
+  setRefreshing(true);
+  render();
+
+  const tasks = [];
+  CATEGORIES.forEach(cat => cat.feeds.forEach(feed => tasks.push({catId:cat.id, feed})));
+  const remaining = {}; CATEGORIES.forEach(c=>remaining[c.id]=c.feeds.length);
+
+  await runPool(tasks, 5, async ({catId, feed})=>{
+    if(runId!==myRun) return;
+    const xml = await fetchText(feed.url);
+    const items = xml ? parseFeed(xml, feed.name) : [];
+    if(runId!==myRun) return;
+    if(items.length){
+      anyLoaded = true;
+      const cur = byCat[catId] || [];
+      const seen = new Set(cur.map(i=>i.id));
+      items.forEach(it=>{ if(!seen.has(it.id)){ cur.push(it); seen.add(it.id); }});
+      cur.sort((a,b)=>b.ts-a.ts);
+      byCat[catId] = cur;
+    }
+    remaining[catId]--;
+    if(remaining[catId]<=0) loadingCats[catId]=false;
+    render();
+  });
+
+  if(runId===myRun){ lastUpdated = Date.now(); setRefreshing(false); render(); }
+}
+
+function setRefreshing(on){
+  $("refresh").disabled = on;
+  $("refresh-label").textContent = on ? "Kraunama…" : "Atnaujinti";
+  $("refresh-icon").classList.toggle("spin", on);
+}
+
+/* ============================== FILTRAI ============================== */
+const qmatch = it => {
+  const q = query.trim().toLowerCase();
+  return !q || it.title.toLowerCase().includes(q) || it.snippet.toLowerCase().includes(q) || it.source.toLowerCase().includes(q);
+};
+
+/* ============================== ATVAIZDAVIMAS ============================== */
+function cardHtml(it, accent, catLabel){
+  const catTag = catLabel ? `<span class="ccat"><span class="cdot" style="background:${accent}"></span>${esc(catLabel)}</span>` : "";
+  return `<a class="card" href="${esc(it.link)}" target="_blank" rel="noreferrer">
+    <div class="cmeta"><span class="csource">${esc(it.source)}</span>${catTag}<span class="ctag">${timeAgo(it.ts)}</span></div>
+    <h3 class="ctitle">${esc(it.title)}</h3>
+    ${it.snippet?`<p class="csnip">${esc(it.snippet)}</p>`:""}
+  </a>`;
+}
+function skeletonGrid(){
+  let s='<div class="grid">';
+  for(let i=0;i<3;i++) s+='<div class="skel"><div class="skline" style="width:40%"></div><div class="skline" style="width:90%"></div><div class="skline" style="width:70%"></div></div>';
+  return s+'</div>';
+}
+
+function render(){
+  // status
+  let totalShown = 0;
+  CATEGORIES.forEach(c=>{ if(active.has(c.id)) totalShown += (byCat[c.id]||[]).filter(qmatch).length; });
+  $("status").textContent = `${totalShown} naujienos · ${active.size}/${CATEGORIES.length} industrijų aktyvios`
+    + (lastUpdated ? ` · atnaujinta ${timeAgo(lastUpdated)}` : "");
+
+  // chips
+  $("chips").innerHTML = CATEGORIES.map(c =>
+    `<button class="chip ${active.has(c.id)?'on':''}" data-id="${c.id}"><span class="dot" style="background:${c.color}"></span>${esc(c.label)}</button>`
+  ).join("");
+  $("chips").querySelectorAll(".chip").forEach(el=>{
+    el.onclick = ()=>{ const id=el.dataset.id; active.has(id)?active.delete(id):active.add(id); render(); };
+  });
+
+  // content
+  const anyLoading = Object.values(loadingCats).some(Boolean);
+  let html = "";
+  if(!anyLoading && !anyLoaded){
+    html += `<div class="banner">Nepavyko parsisiųsti naujienų — dažniausiai dėl tinklo arba CORS tarpininko ribojimų. Paspausk „Atnaujinti" dar kartą po kelių sekundžių.</div>`;
+  }
+
+  if(view==="grouped"){
+    CATEGORIES.filter(c=>active.has(c.id)).forEach(cat=>{
+      const items = (byCat[cat.id]||[]).filter(qmatch);
+      const loading = loadingCats[cat.id];
+      html += `<section class="section"><div class="sechead">
+        <span class="secbar" style="background:${cat.color}"></span>
+        <h2 class="sectitle">${esc(cat.label)}</h2>
+        <span class="seccount">${loading?"kraunama…":items.length+" naujienų"}</span></div>`;
+      if(loading && items.length===0) html += skeletonGrid();
+      else if(items.length===0) html += `<div class="empty">${query?"Pagal paiešką nieko nerasta.":"Šiuo metu naujienų nėra."}</div>`;
+      else html += `<div class="grid">${items.map(it=>cardHtml(it, cat.color)).join("")}</div>`;
+      html += `</section>`;
+    });
+  } else {
+    const all = [];
+    CATEGORIES.forEach(c=>{ if(active.has(c.id)) (byCat[c.id]||[]).forEach(it=>all.push({...it, catLabel:c.label, catColor:c.color})); });
+    const latest = all.filter(qmatch).sort((a,b)=>b.ts-a.ts).slice(0,60);
+    html += `<section class="section"><div class="sechead">
+      <span class="secbar" style="background:var(--accent)"></span>
+      <h2 class="sectitle">Naujausios — visos industrijos</h2>
+      <span class="seccount">${latest.length} naujienų</span></div>`;
+    if(latest.length===0) html += `<div class="empty">${anyLoading?"Kraunama…":(query?"Pagal paiešką nieko nerasta.":"Naujienų nėra.")}</div>`;
+    else html += `<div class="grid">${latest.map(it=>cardHtml(it, it.catColor, it.catLabel)).join("")}</div>`;
+    html += `</section>`;
+  }
+  $("content").innerHTML = html;
+}
+
+/* ============================== INICIALIZACIJA ============================== */
+$("kicker").textContent = `Tavo kasdienė suvestinė · ${CATEGORIES.length} industrijos`;
+$("date").textContent = todayString();
+const feedCount = CATEGORIES.reduce((n,c)=>n+c.feeds.length,0);
+$("foot").innerHTML = `Naujienų Stalas · agreguoja ${feedCount} RSS šaltinių · naujienos atsiunčiamos tiesiai iš leidėjų<br>Spustelėk naujieną, kad atvertum originalų straipsnį`;
+
+$("search").addEventListener("input", e=>{ query = e.target.value; render(); });
+$("refresh").addEventListener("click", loadAll);
+$("view-grouped").addEventListener("click", ()=>{ view="grouped"; $("view-grouped").classList.add("on"); $("view-latest").classList.remove("on"); render(); });
+$("view-latest").addEventListener("click", ()=>{ view="latest"; $("view-latest").classList.add("on"); $("view-grouped").classList.remove("on"); render(); });
+
+render();
+loadAll();
+</script>
+</body>
+</html>
